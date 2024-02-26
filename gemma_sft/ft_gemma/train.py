@@ -232,8 +232,8 @@ print_named_parameters(model)
 
 tokenizer = LLMTokenizer.from_pretrained(PATH_MODEL_PRETRAIN, add_eos_token=True)
 ID_PAD = 0
-ID_BOS = 1
-ID_EOS = 2
+ID_BOS = 2
+ID_EOS = 1
 ID_UNK = 3
 ID_MASK = 4
 ID_SOT = 106

@@ -54,7 +54,7 @@ print(device_map)
 print(ddp)
 
 
-def save_model_state(model, config=None, model_save_dir="./", model_name="pytorch_model.bin"):
+def save_model_state(model, config=None, model_save_dir="./", model_name="adapter_model.safetensors"):
     """  仅保存 有梯度 的 模型参数(推荐使用)  """
     if not os.path.exists(model_save_dir):
         os.makedirs(model_save_dir)
@@ -205,14 +205,14 @@ def dfs_file(path_dir):
 
 
 model = LLMModel.from_pretrained(PATH_MODEL_PRETRAIN)
-model = prepare_model_for_half_training(model,
-        use_gradient_checkpointing=True,
-        output_embedding_layer_name="lm_head",
-        layer_norm_names=["post_attention_layernorm",
-                          "input_layernorm",
-                          "norm"
-                          ],
-        )
+# model = prepare_model_for_half_training(model,
+#         use_gradient_checkpointing=True,
+#         output_embedding_layer_name="lm_head",
+#         layer_norm_names=["post_attention_layernorm",
+#                           "input_layernorm",
+#                           "norm"
+#                           ],
+#         )
 model.gradient_checkpointing_enable()
 model.enable_input_require_grads()
 model.is_parallelizable = IS_PARALLELIZABLE
@@ -232,8 +232,8 @@ print_named_parameters(model)
 
 tokenizer = LLMTokenizer.from_pretrained(PATH_MODEL_PRETRAIN, add_eos_token=True)
 ID_PAD = 0
-ID_BOS = 1
-ID_EOS = 2
+ID_BOS = 2
+ID_EOS = 1
 ID_UNK = 3
 ID_MASK = 4
 ID_SOT = 106
@@ -241,9 +241,10 @@ ID_EOT = 107
 ID_BR = 108  # "\n"
 ID_USER = 1645
 ID_MODEL = 2516
-tokenizer.pad_token_id = ID_PAD
+tokenizer.pad_token_id = ID_EOS
 tokenizer.eos_token_id = ID_EOS
-tokenizer.padding_side = "right"  # NO use attention-mask
+tokenizer.padding_side = "left"
+# tokenizer.padding_side = "right"  # NO use attention-mask
 print(ID_PAD)
 print(ID_BOS)
 print(ID_EOS)
@@ -363,7 +364,7 @@ trainer = CustomTrainer(
             logging_steps=20,
             # warmup_steps=382,  # 618
             # warmup_ratio=0.01,
-            warmup_steps=32,  # 618
+            warmup_steps=1,  # 618
             evaluation_strategy="no",
             lr_scheduler_type='constant',  # "cosine",
             logging_first_step=False,
@@ -379,6 +380,7 @@ trainer = CustomTrainer(
             output_dir=MODEL_SAVE_DIR,
             report_to=[],  # ["tensorboard"],  # [], ["wandb"]
             optim="adamw_torch",  # "adamw_hf",
+            # optim="adafactor",
             fp16=True,
         )
     )

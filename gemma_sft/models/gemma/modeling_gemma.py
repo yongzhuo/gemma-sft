@@ -671,7 +671,8 @@ class GemmaDecoderLayer(nn.Module):
 
         # Self Attention
         hidden_states, self_attn_weights, present_key_value = self.self_attn(
-            hidden_states=hidden_states,
+            # hidden_states=hidden_states,
+            hidden_states=hidden_states.to(self.self_attn.q_proj.weight.dtype),
             attention_mask=attention_mask,
             position_ids=position_ids,
             past_key_value=past_key_value,
@@ -685,7 +686,8 @@ class GemmaDecoderLayer(nn.Module):
         # Fully Connected
         residual = hidden_states
         hidden_states = self.post_attention_layernorm(hidden_states)
-        hidden_states = self.mlp(hidden_states)
+        # hidden_states = self.mlp(hidden_states)
+        hidden_states = self.mlp(hidden_states.to(self.mlp.gate_proj.weight.dtype))
         hidden_states = residual + hidden_states
 
         outputs = (hidden_states,)
@@ -1122,11 +1124,14 @@ class GemmaForCausalLM(GemmaPreTrainedModel):
         )
 
         hidden_states = outputs[0]
-        logits = self.lm_head(hidden_states)
+        # logits = self.lm_head(hidden_states)
+        logits = self.lm_head(hidden_states.to(self.lm_head.weight.dtype))
 
         loss = None
         if labels is not None:
             # Shift so that tokens < n predict n
+            ### to float32
+            logits = logits.to(torch.float32)
             shift_logits = logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
             # Flatten the tokens
@@ -1136,6 +1141,9 @@ class GemmaForCausalLM(GemmaPreTrainedModel):
             # Enable model parallelism
             shift_labels = shift_labels.to(shift_logits.device)
             loss = loss_fct(shift_logits, shift_labels)
+            ### orginal-dtype
+            logits = logits.to(hidden_states.dtype)
+            loss = loss.to(hidden_states.dtype)
 
         if not return_dict:
             output = (logits,) + outputs[1:]

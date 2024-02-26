@@ -71,14 +71,25 @@ print(device_map)
 print(ddp)
 
 
-def load_model_state(model, model_save_dir="./", model_name="pytorch_model.bin", device="cpu"):
+def load_model_state(model, model_save_dir="./", model_name="adapter_model.safetensors", device="cpu"):
     """  仅加载模型参数(推荐使用)  """
     try:
         path_model = os.path.join(model_save_dir, model_name)
         peft_config = LoraConfig.from_pretrained(model_save_dir)
         peft_config.inference_mode = True
         model = get_peft_model(model, peft_config)
-        state_dict = torch.load(path_model, map_location=torch.device(device))
+
+        if path_model.endswith(".safetensors"):
+            from safetensors.torch import load_file, save_file
+            from safetensors import safe_open
+            state_dict = {}
+            with safe_open(path_model, framework="pt", device="cpu") as f:
+                for k in f.keys():
+                    state_dict[k] = f.get_tensor(k)
+        ### if path_model.endswith(".bin") or path_model.endswith(".pt"):
+        else:
+            state_dict = torch.load(path_model, map_location=torch.device(device))
+
         # print(state_dict.keys())
         state_dict = {"base_model.model." + k.replace("_orig_mod.", "")
                       .replace(".lora_A.weight", ".lora_A.default.weight")
@@ -260,14 +271,14 @@ def generate_prompt(data_point, is_logger=False):
 
 
 model = LLMModel.from_pretrained(PATH_MODEL_PRETRAIN)
-model = prepare_model_for_half_training(model,
-        use_gradient_checkpointing=False,
-        output_embedding_layer_name="lm_head",
-        layer_norm_names=["post_attention_layernorm",
-                          "input_layernorm",
-                          "norm"
-                          ],
-        )
+# model = prepare_model_for_half_training(model,
+#         use_gradient_checkpointing=False,
+#         output_embedding_layer_name="lm_head",
+#         layer_norm_names=["post_attention_layernorm",
+#                           "input_layernorm",
+#                           "norm"
+#                           ],
+#         )
 config = LoraConfig(target_modules=TARGET_MODULES,
                     lora_dropout=LORA_DROPOUT,
                     lora_alpha=LORA_ALPHA,
@@ -286,8 +297,8 @@ print_named_parameters(model, use_print_data=True)
 
 tokenizer = LLMTokenizer.from_pretrained(PATH_MODEL_PRETRAIN, add_eos_token=True)
 ID_PAD = 0
-ID_BOS = 1
-ID_EOS = 2
+ID_BOS = 2
+ID_EOS = 1
 ID_UNK = 3
 ID_MASK = 4
 ID_SOT = 106

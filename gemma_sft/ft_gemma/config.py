@@ -9,15 +9,15 @@
 MICRO_BATCH_SIZE = 4  # default=4  # this could actually be 5 but i like powers of 2
 BATCH_SIZE = 128
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
-LEARNING_RATE = 3e-4  # default=3e-4  # the Karpathy constant
+LEARNING_RATE = 2e-4  # std=1e-4(google-deepmind/gemma), std=2e-4(google/gemma_pytorch)
 # LEARNING_RATE = 3e-4  # default=3e-4  # the Karpathy constant
 EPOCHS = 3  # default=3  # we don't always need 3 tbh
 # LORA_DROPOUT = 0.1
 # LORA_ALPHA = 32
 # LORA_R = 32
 LORA_DROPOUT = 0.05
-LORA_ALPHA = 16
-LORA_R = 8
+LORA_ALPHA = 32
+LORA_R = 16
 SAVE_STEPS = 382
 VAL_SET_SIZE = 0
 MAX_LENGTH_Q = 256 - 1  # default=128 - 2

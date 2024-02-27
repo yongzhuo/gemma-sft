@@ -69,39 +69,6 @@ tqdm
 接口: python post_api.py
 ```
 
-## 数据集-中文
- - [https://huggingface.co/datasets/JosephusCheung/GuanacoDataset](https://huggingface.co/datasets/JosephusCheung/GuanacoDataset)
- - [https://huggingface.co/datasets/shareAI/shareGPT_cn](https://huggingface.co/datasets/shareAI/shareGPT_cn)
- - [https://huggingface.co/datasets/Mutonix/RefGPT-Fact](https://huggingface.co/datasets/Mutonix/RefGPT-Fact)
- - [https://huggingface.co/datasets/BAAI/COIG](https://huggingface.co/datasets/BAAI/COIG)
- - [https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM](https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM)
- - [https://github.com/carbonz0/alpaca-chinese-dataset](https://github.com/carbonz0/alpaca-chinese-dataset)
- - [https://github.com/LianjiaTech/BELLE](https://github.com/LianjiaTech/BELLE)
- - [https://github.com/PhoebusSi/Alpaca-CoT](https://github.com/PhoebusSi/Alpaca-CoT)
- - [https://github.com/Hello-SimpleAI/chatgpt-comparison-detection](https://github.com/Hello-SimpleAI/chatgpt-comparison-detection)
- - [https://github.com/yangjianxin1/Firefly](https://github.com/yangjianxin1/Firefly)
- - [https://github.com/XueFuzhao/InstructionWild](https://github.com/XueFuzhao/InstructionWild)
- - [https://github.com/OpenLMLab/MOSS](https://github.com/OpenLMLab/MOSS)
- - [https://github.com/thu-coai/Safety-Prompts](https://github.com/thu-coai/Safety-Prompts)
- - [https://github.com/LAION-AI/Open-Assistant](https://github.com/LAION-AI/Open-Assistant)
- - [https://github.com/TigerResearch/TigerBot](https://github.com/TigerResearch/TigerBot)
-
-
-## 参考/感谢
- - [https://github.com/google/gemma_pytorch](https://github.com/google/gemma_pytorch)
- - [https://huggingface.co/google/gemma-2b-it](https://huggingface.co/google/gemma-2b-it)
- - [https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard)
- - [https://github.com/THUDM/ChatGLM-6B](https://github.com/THUDM/ChatGLM-6B)
- - [https://github.com/THUDM/GLM](https://github.com/THUDM/GLM)
- - [https://github.com/tatsu-lab/stanford_alpaca](https://github.com/tatsu-lab/stanford_alpaca)
- - [https://github.com/LianjiaTech/BELLE](https://github.com/LianjiaTech/BELLE)
- - [https://github.com/huggingface/peft](https://github.com/huggingface/peft)
- - [https://github.com/mymusise/ChatGLM-Tuning](https://github.com/mymusise/ChatGLM-Tuning)
- - [https://github.com/bojone/bert4keras](https://github.com/bojone/bert4keras)
- - [trl](https://github.com/lvwerra/trl)
- - [math23k](https://aclanthology.org/D17-1088)
-
-
 ## 微调日志-advgen
  ![gemma_sft/log-gemma-2b-sft.png](gemma_sft/log-gemma-2b-sft.png)
 
@@ -133,5 +100,37 @@ tensor([[     2,  23055, 235345, 235502, 236524, 235287,  60525, 235345, 218295,
 这一款卫衣采用经典的领口设计，不拘一格的设计，展现出街头风。领口的设计，不仅能够修饰脸型，还能够打造出精致的小脸，而且还能够起到遮挡口型的效果，让脸型更加小巧。领口处采用了创意的圆环装饰，让整个卫衣更加丰富，视觉上更加亮眼。卫衣采用宽大的版型设计，不挑人穿，即使是身材不那么好的人也能轻松驾驭。<eos>
 请输入:
 ```
+
+## 数据集-中文
+ - [https://huggingface.co/datasets/JosephusCheung/GuanacoDataset](https://huggingface.co/datasets/JosephusCheung/GuanacoDataset)
+ - [https://huggingface.co/datasets/shareAI/shareGPT_cn](https://huggingface.co/datasets/shareAI/shareGPT_cn)
+ - [https://huggingface.co/datasets/Mutonix/RefGPT-Fact](https://huggingface.co/datasets/Mutonix/RefGPT-Fact)
+ - [https://huggingface.co/datasets/BAAI/COIG](https://huggingface.co/datasets/BAAI/COIG)
+ - [https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM](https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM)
+ - [https://github.com/carbonz0/alpaca-chinese-dataset](https://github.com/carbonz0/alpaca-chinese-dataset)
+ - [https://github.com/LianjiaTech/BELLE](https://github.com/LianjiaTech/BELLE)
+ - [https://github.com/PhoebusSi/Alpaca-CoT](https://github.com/PhoebusSi/Alpaca-CoT)
+ - [https://github.com/Hello-SimpleAI/chatgpt-comparison-detection](https://github.com/Hello-SimpleAI/chatgpt-comparison-detection)
+ - [https://github.com/yangjianxin1/Firefly](https://github.com/yangjianxin1/Firefly)
+ - [https://github.com/XueFuzhao/InstructionWild](https://github.com/XueFuzhao/InstructionWild)
+ - [https://github.com/OpenLMLab/MOSS](https://github.com/OpenLMLab/MOSS)
+ - [https://github.com/thu-coai/Safety-Prompts](https://github.com/thu-coai/Safety-Prompts)
+ - [https://github.com/LAION-AI/Open-Assistant](https://github.com/LAION-AI/Open-Assistant)
+ - [https://github.com/TigerResearch/TigerBot](https://github.com/TigerResearch/TigerBot)
+
+
+## 参考/感谢
+ - [https://github.com/google/gemma_pytorch](https://github.com/google/gemma_pytorch)
+ - [https://huggingface.co/google/gemma-2b-it](https://huggingface.co/google/gemma-2b-it)
+ - [https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard)
+ - [https://github.com/THUDM/ChatGLM-6B](https://github.com/THUDM/ChatGLM-6B)
+ - [https://github.com/THUDM/GLM](https://github.com/THUDM/GLM)
+ - [https://github.com/tatsu-lab/stanford_alpaca](https://github.com/tatsu-lab/stanford_alpaca)
+ - [https://github.com/LianjiaTech/BELLE](https://github.com/LianjiaTech/BELLE)
+ - [https://github.com/huggingface/peft](https://github.com/huggingface/peft)
+ - [https://github.com/mymusise/ChatGLM-Tuning](https://github.com/mymusise/ChatGLM-Tuning)
+ - [https://github.com/bojone/bert4keras](https://github.com/bojone/bert4keras)
+ - [trl](https://github.com/lvwerra/trl)
+ - [math23k](https://aclanthology.org/D17-1088)
 
 

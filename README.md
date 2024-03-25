@@ -3,7 +3,8 @@ Gemma-SFT(谷歌, Google), gemma-2b/gemma-7b微调(transformers)/LORA(peft)/推�
 
 ## 项目地址
  - [https://github.com/yongzhuo/gemma-sft](https://github.com/yongzhuo/gemma-sft)
- - ***全部weights要用fp32/tf32***, 使用fp16微调十几或几十的步数后大概率loss=nan;(即便layer-norm是fp32也不行, LLaMA就没有这个问题; 大概率是权重精度问题, gemma官方分发的权重是bfloat16，精度比fp16还低)
+ - ***全部weights要用fp32/tf32***, 使用fp16微调十几或几十的步数后大概率loss=nan;(即便layer-norm是fp32也不行, LLaMA就没有这个问题; 大概率是权重精度问题, gemma官方分发的权重是bfloat16，精度比fp16还低);
+ - transformers==4.39.0版本又修复了一些Bug, gemma-7b模型无法fp16训练或许与之相关;
 
 ## 备注
 ```python

@@ -39,9 +39,14 @@ from pydantic import BaseModel
 from fastapi import FastAPI
 import time
 
-from gemma_sft.models.gemma.modeling_gemma import GemmaForCausalLM as LLMModel
-from gemma_sft.models.gemma.tokenization_gemma import GemmaTokenizer as LLMTokenizer
-from gemma_sft.models.gemma.configuration_gemma import GemmaConfig as LLMConfig
+# from gemma_sft.models.gemma.modeling_gemma import GemmaForCausalLM as LLMModel
+# from gemma_sft.models.gemma.tokenization_gemma import GemmaTokenizer as LLMTokenizer
+# from gemma_sft.models.gemma.configuration_gemma import GemmaConfig as LLMConfig
+
+from transformers import GemmaTokenizer as LLMTokenizer
+from transformers import GemmaForCausalLM as LLMModel
+from transformers import GemmaConfig as LLMConfig
+
 from gemma_sft.ft_gemma.config import PATH_MODEL_PRETRAIN, DATA_PATH, MODEL_SAVE_DIR, REPO_ID
 from gemma_sft.ft_gemma.config import MICRO_BATCH_SIZE, BATCH_SIZE, GRADIENT_ACCUMULATION_STEPS
 from gemma_sft.ft_gemma.config import LEARNING_RATE, EPOCHS, SAVE_STEPS, VAL_SET_SIZE, TARGET_MODULES
@@ -79,15 +84,20 @@ def load_model_state(model, model_save_dir="./", model_name="adapter_model.safet
         peft_config.inference_mode = True
         model = get_peft_model(model, peft_config)
 
-        if path_model.endswith(".safetensors"):
-            from safetensors.torch import load_file, save_file
-            from safetensors import safe_open
-            state_dict = {}
-            with safe_open(path_model, framework="pt", device="cpu") as f:
-                for k in f.keys():
-                    state_dict[k] = f.get_tensor(k)
-        ### if path_model.endswith(".bin") or path_model.endswith(".pt"):
-        else:
+        try:
+            if path_model.endswith(".safetensors"):
+                from safetensors.torch import load_file, save_file
+                from safetensors import safe_open
+                state_dict = {}
+                with safe_open(path_model, framework="pt", device="cpu") as f:
+                    for k in f.keys():
+                        state_dict[k] = f.get_tensor(k)
+            ### if path_model.endswith(".bin") or path_model.endswith(".pt"):
+            else:
+                state_dict = torch.load(path_model, map_location=torch.device(device))
+        except Exception as e:
+            print(traceback.print_exc())
+            ### 全部训练完的话会用这个, 即便是.safetensors
             state_dict = torch.load(path_model, map_location=torch.device(device))
 
         # print(state_dict.keys())

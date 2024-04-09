@@ -27,15 +27,18 @@ from peft import LoraConfig, get_peft_model
 from transformers import GenerationConfig
 from tensorboardX import SummaryWriter
 from datasets import load_dataset
-from pydantic import BaseModel
-from rouge import Rouge  # pip install rouge
 from tqdm import tqdm
 import transformers
 import torch
 
-from gemma_sft.models.gemma.tokenization_gemma import GemmaTokenizer as LLMTokenizer
-from gemma_sft.models.gemma.configuration_gemma import GemmaConfig as LLMConfig
-from gemma_sft.models.gemma.modeling_gemma import GemmaForCausalLM as LLMModel
+# from gemma_sft.models.gemma.tokenization_gemma import GemmaTokenizer as LLMTokenizer
+# from gemma_sft.models.gemma.configuration_gemma import GemmaConfig as LLMConfig
+# from gemma_sft.models.gemma.modeling_gemma import GemmaForCausalLM as LLMModel
+
+from transformers import GemmaTokenizer as LLMTokenizer
+from transformers import GemmaForCausalLM as LLMModel
+from transformers import GemmaConfig as LLMConfig
+
 from gemma_sft.ft_gemma.config import PATH_MODEL_PRETRAIN, DATA_PATH, MODEL_SAVE_DIR, REPO_ID
 from gemma_sft.ft_gemma.config import MICRO_BATCH_SIZE, BATCH_SIZE, GRADIENT_ACCUMULATION_STEPS
 from gemma_sft.ft_gemma.config import LEARNING_RATE, EPOCHS, SAVE_STEPS, VAL_SET_SIZE, TARGET_MODULES
@@ -164,14 +167,25 @@ def data_collator(batch):
     for ba in batch:
         x, y = ba.get("input_ids"), ba.get("labels")
         len_padding = len_max_batch - len(x) - len(y)
+        ### only calculate loss of output
+        # if tokenizer.padding_side and tokenizer.padding_side == "left":
+        #     labels = [-100] * len_padding + [-100] * len(x) + y
+        #     input_ids = [ID_PAD] * len_padding + x + y
+        #     attention_mask = [1] * len_padding + [0] * (len_max_batch - len_padding)
+        # else:
+        #     labels = [-100] * len(x) + y + [-100] * len_padding
+        #     input_ids = x + y + [ID_PAD] * len_padding
+        #     attention_mask = [0] * (len(x)+len(y)) + [1] * len_padding
+
+        ### calculate loss of output and input
         if tokenizer.padding_side and tokenizer.padding_side == "left":
-            labels = [-100] * len_padding + [-100] * len(x) + y
+            labels = [-100] * len_padding + x + y
             input_ids = [ID_PAD] * len_padding + x + y
             attention_mask = [1] * len_padding + [0] * (len_max_batch - len_padding)
         else:
-            labels = [-100] * len(x) + y + [-100] * len_padding
+            labels = x + y + [-100] * len_padding
             input_ids = x + y + [ID_PAD] * len_padding
-            attention_mask = [0] * (len(x)+len(y)) + [1] * len_padding
+            attention_mask = [0] * (len(x) + len(y)) + [1] * len_padding
         tensor_attention_mask = torch.tensor(attention_mask, dtype=torch.long)
         tensor_input_ids = torch.tensor(input_ids, dtype=torch.long)
         tensor_labels = torch.tensor(labels, dtype=torch.long)
@@ -204,7 +218,7 @@ def dfs_file(path_dir):
     return files
 
 
-model = LLMModel.from_pretrained(PATH_MODEL_PRETRAIN)
+model = LLMModel.from_pretrained(PATH_MODEL_PRETRAIN, torch_dtype=torch.bfloat16)
 # model = prepare_model_for_half_training(model,
 #         use_gradient_checkpointing=True,
 #         output_embedding_layer_name="lm_head",
@@ -361,17 +375,17 @@ trainer = CustomTrainer(
             learning_rate=LEARNING_RATE,
             num_train_epochs=EPOCHS,
             max_grad_norm=1.0,
-            logging_steps=20,
+            logging_steps=8,
             # warmup_steps=382,  # 618
             # warmup_ratio=0.01,
             warmup_steps=1,  # 618
             evaluation_strategy="no",
-            lr_scheduler_type='constant',  # "cosine",
-            logging_first_step=False,
+            lr_scheduler_type='cosine',  # "cosine",
+            logging_first_step=True,
             # evaluation_strategy="steps" if VAL_SET_SIZE > 0 else "no",
             # eval_steps=SAVE_STEPS if VAL_SET_SIZE > 0 else None,
             save_strategy="steps",
-            save_total_limit=32,
+            save_total_limit=12,
             save_steps=SAVE_STEPS,
             # load_best_model_at_end=True if VAL_SET_SIZE > 0 else False,
             ddp_find_unused_parameters=False if ddp else None,
@@ -381,7 +395,7 @@ trainer = CustomTrainer(
             report_to=[],  # ["tensorboard"],  # [], ["wandb"]
             optim="adamw_torch",  # "adamw_hf",
             # optim="adafactor",
-            fp16=True,
+            # fp16=True,
         )
     )
 

@@ -5,6 +5,7 @@
 # @function: 推理
 
 
+import traceback
 import random
 import time
 import sys
@@ -14,7 +15,7 @@ print(path_root)
 sys.path.append(path_root)
 from gemma_sft.ft_gemma.config import CUDA_VISIBLE_DEVICES, USE_TORCH, CPU_NUMS  # from config
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:3072"
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # CUDA_VISIBLE_DEVICES
+os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_VISIBLE_DEVICES
 os.environ["USE_TORCH"] = USE_TORCH
 os.environ["OMP_NUM_THREADS"] = CPU_NUMS  # export OMP_NUM_THREADS=1
 os.environ["OPENBLAS_NUM_THREADS"] = CPU_NUMS  # export OPENBLAS_NUM_THREADS=1
@@ -47,9 +48,14 @@ from tqdm import tqdm
 import torch
 import jieba
 
-from gemma_sft.models.gemma.modeling_gemma import GemmaForCausalLM as LLMModel
-from gemma_sft.models.gemma.tokenization_gemma import GemmaTokenizer as LLMTokenizer
-from gemma_sft.models.gemma.configuration_gemma import GemmaConfig as LLMConfig
+# from gemma_sft.models.gemma.modeling_gemma import GemmaForCausalLM as LLMModel
+# from gemma_sft.models.gemma.tokenization_gemma import GemmaTokenizer as LLMTokenizer
+# from gemma_sft.models.gemma.configuration_gemma import GemmaConfig as LLMConfig
+
+from transformers import GemmaTokenizer as LLMTokenizer
+from transformers import GemmaForCausalLM as LLMModel
+from transformers import GemmaConfig as LLMConfig
+
 from gemma_sft.ft_gemma.config import PATH_MODEL_PRETRAIN, DATA_PATH, MODEL_SAVE_DIR, REPO_ID
 from gemma_sft.ft_gemma.config import MICRO_BATCH_SIZE, BATCH_SIZE, GRADIENT_ACCUMULATION_STEPS
 from gemma_sft.ft_gemma.config import LEARNING_RATE, EPOCHS, SAVE_STEPS, VAL_SET_SIZE, TARGET_MODULES
@@ -74,15 +80,20 @@ def load_model_state(model, model_save_dir="./", model_name="adapter_model.safet
         peft_config = LoraConfig.from_pretrained(model_save_dir)
         peft_config.inference_mode = True
         model = get_peft_model(model, peft_config)
-        if path_model.endswith(".safetensors"):
-            from safetensors.torch import load_file, save_file
-            from safetensors import safe_open
-            state_dict = {}
-            with safe_open(path_model, framework="pt", device="cpu") as f:
-                for k in f.keys():
-                    state_dict[k] = f.get_tensor(k)
-        ### if path_model.endswith(".bin") or path_model.endswith(".pt"):
-        else:
+        try:
+            if path_model.endswith(".safetensors"):
+                from safetensors.torch import load_file, save_file
+                from safetensors import safe_open
+                state_dict = {}
+                with safe_open(path_model, framework="pt", device="cpu") as f:
+                    for k in f.keys():
+                        state_dict[k] = f.get_tensor(k)
+            ### if path_model.endswith(".bin") or path_model.endswith(".pt"):
+            else:
+                state_dict = torch.load(path_model, map_location=torch.device(device))
+        except Exception as e:
+            print(traceback.print_exc())
+            ### 全部训练完的话会用这个, 即便是.safetensors
             state_dict = torch.load(path_model, map_location=torch.device(device))
 
         # state_dict = torch.load(path_model, map_location=torch.device(device))
@@ -93,6 +104,26 @@ def load_model_state(model, model_save_dir="./", model_name="adapter_model.safet
                       : v for k, v in state_dict.items()}
         print(state_dict.keys())
         print("#" * 128)
+
+        # if path_model.endswith(".safetensors"):
+        #     from safetensors.torch import load_file, save_file
+        #     from safetensors import safe_open
+        #     state_dict = {}
+        #     with safe_open(path_model, framework="pt", device="cpu") as f:
+        #         for k in f.keys():
+        #             state_dict[k] = f.get_tensor(k)
+        # ### if path_model.endswith(".bin") or path_model.endswith(".pt"):
+        # else:
+        #     state_dict = torch.load(path_model, map_location=torch.device(device))
+        #
+        # # state_dict = torch.load(path_model, map_location=torch.device(device))
+        # # print(state_dict.keys())
+        # state_dict = {"base_model.model." + k.replace("_orig_mod.", "")
+        #               .replace(".lora_A.weight", ".lora_A.default.weight")
+        #               .replace(".lora_B.weight", ".lora_B.default.weight")
+        #               : v for k, v in state_dict.items()}
+        # print(state_dict.keys())
+        # print("#" * 128)
         ### 排查不存在model.keys的 state_dict.key
         name_dict = {name: 0 for name, param in model.named_parameters()}
         print(name_dict.keys())
@@ -342,9 +373,9 @@ def predict(data_dict):
 
 
 if __name__ == '__main__':
-    data_dict = {"instruction": "解释为什么下面的分数等于 1/4",
-                 "input": "解释为什么下面的分数等于 1/4，4/16",
-                 "output": "分数 4/16 等于 1/4，因为分子和分母都可以被 4 整除。将顶部和底部数字都除以 4 得到分数 1/4。"
+    data_dict = {"instruction": "1+1=",
+                 "input": "",
+                 "output": "2"
                  }
     res = predict(data_dict)
     print(res)

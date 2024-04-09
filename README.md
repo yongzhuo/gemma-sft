@@ -3,7 +3,7 @@ Gemma-SFT(谷歌, Google), gemma-2b/gemma-7b微调(transformers)/LORA(peft)/推�
 
 ## 日志
  - v1, 20240222, transformers==4.38.0时候, 微调只跑通了gemma-2b-it(因为只计算了output的loss, 且使用的是fp16), 同时该版本transformers实现有些问题, 比如说1.tokenizer要加bos, 2.RoPE计算精度问题(float32), 3.激活函数gelu_pytorch_tanh;
- - v2, 20240407, 微调跑通了gemma-7b-it, 精度至少得bf16, 且loss必须计算input输入的;
+ - v2, 20240320, 微调跑通了gemma-7b-it, 精度至少得bf16, 且loss必须计算input输入的;
 
 ## 项目地址
  - [https://github.com/yongzhuo/gemma-sft](https://github.com/yongzhuo/gemma-sft);
